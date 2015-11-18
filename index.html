@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+  <title>map-baidu</title>
+ <!--  <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main.css" />
+  --> <link rel="stylesheet" href="c/index.css">
+  <script type="text/javascript" src="http://i.tq121.com.cn/j/jquery-1.8.2.js"></script>
+
+  <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=fKf2bgsPesz06f6bSPkjbaHR"></script>
+  
+</head>
+
+<body>
+	<div class="box con clearfix">
+		<div id="console_wea" class="left">
+			<ul class="ul_1">
+				<li class="li_1 on">
+					<h1>雷达产品<i></i></h1>
+					<ul class="ul_3">
+						<li data-type="radar" class="hover">雷达回波</li>
+						<!-- <li data-type="radar">分钟级降水</li> -->
+					</ul>
+				</li>
+				<li class="li_1">
+					<h1>实况<i></i></h1>
+					<ul class="ul_3">
+						<li data-type="r">降水实况</li>
+						<li data-type="t">温度实况</li>
+						<li data-type="w">风实况</li>
+						<li data-type="h">相对湿度实况</li>
+					</ul>
+				</li>
+				<li >
+					<h1>预报</h1>
+					<ul class="ul_2" style="display:block">
+						<li class="li_1">
+							<h2>降水预报<i></i></h2>
+							<ul class="ul_3">
+								<li data-type="r3h">3小时降水</li>
+								<!-- <li data-type="r24h">24小时降水</li> -->
+							</ul>
+						</li>
+						<li class="li_1">
+							<h2>温度预报<i></i></h2>
+							<ul class="ul_3">
+								<li data-type="t3h">逐3小时温度</li>
+								<li data-type="t24hmax">24小时最高气温</li>
+								<li data-type="t24hmin">24小时最低气温</li>
+							</ul>
+						</li>
+						<li class="li_1">
+							<h2>风预报<i></i></h2>
+							<ul class="ul_3">
+								<li data-type="w3h">逐3小时风力</li>
+							</ul>
+						</li>
+						<li class="li_1">
+							<h2>相对湿度预报<i></i></h2>
+							<ul class="ul_3">
+								<li data-type="h3h">逐3小时相对湿度</li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+			</ul>
+			<p>
+				Copyright©中国气象局公共气象服务中心 All Rights</br> Reserved (2008-2015)</br> 
+版权所有
+			</p>
+		</div>
+		<div class="right">
+			<div class="t clearfix">
+				<div class="search">
+					<input id="search_txt" type="text" class="txt" value="定位搜索：输入城市名 地点 地址 ">
+					<input id="search_btn" type="text" class="btn">
+				</div>
+				<div id="full" class="btnc btn4">
+					全屏<i></i>
+				</div>
+				<div id="share" class="btnc btn3">
+					分享<i></i>
+				</div>
+				<div id="measure" class="btnc btn2">
+					测距<i></i>
+				</div>
+				<div id="poiAreaChange" class="btnc btn1">
+					色斑图<i></i>
+				</div>
+				<div class="loading" id="loading_icon"></div>
+			</div>
+			<div class="map_con">
+				<div id="console_time_radar" class="time radar">
+					<div class="playbtn"></div>
+					<div class="openclosebtn"></div>
+					<div class="con">
+						<ul class="cutLine">
+						</ul>
+						<div class="poi"></div>
+						<div class="note"></div>					
+					</div>
+					<div class="con_font">
+					</div>
+					<div class="bg"></div>
+				</div>
+				
+				<div class="assist lefttop">
+					<a id="setzoom_big" href="javascript:;" ></a>
+					<a id="setzoom_small" href="javascript:;" ></a>
+					<a id="map_reset" href="javascript:;" ></a>
+					
+					
+				</div>
+				<div class="assist righttop">
+					<a id="console_assist_open" href="javascript:;" ></a>
+					<div id="console_assist_pic">
+						<img class="tuli_t" style="display:block" src="i/tuli_t.png" alt="">
+						<img class="tuli_h" src="i/tuli_h.png" alt="">
+						<img class="tuli_r" src="i/tuli_r.png" alt="">
+						<img class="tuli_r24h" src="i/tuli_r24h.png" alt="">
+						<img class="tuli_w" src="i/tuli_w.png" alt="">
+					</div>
+				</div>
+				<div class="assist rightbottom">
+					<a id="satechaner" href="javascript:;" ></a>
+					<a id="poi_area_change" href="javascript:;" ></a>
+				</div>
+				
+				<div id="map"></div>
+			</div> 
+		</div>
+	</div>	
+
+
+
+
+
+
+<script type="text/javascript" src="http://api.map.baidu.com/library/DistanceTool/1.2/src/DistanceTool_min.js"></script>
+<script>
+ 
+
+</script>
+<script type="text/javascript" src="j/weather.map.js"></script>
+<script type="text/javascript" src="j/index.js"></script>
+
+</body>
+
+</html>

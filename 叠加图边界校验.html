@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <style type="text/css">
+    body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
+    #allmap{height:100%;width:100%;}
+    #r-result{width:100%;}
+  </style>
+  <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=fKf2bgsPesz06f6bSPkjbaHR"></script>
+  <title>添加/删除地面叠加层</title>
+</head>
+<body>
+  <div id="allmap"></div>
+  
+</body>
+</html>
+<script type="text/javascript">
+	var TianAnMen = new BMap.Point(116.404449, 39.914889);
+	// 创建Map实例
+	var map = new BMap.Map("allmap");
+	// 居中放大
+	map.centerAndZoom(TianAnMen, 4);
+	// 图片地址
+	var imgUrl = "http://ljy.weather.com.cn/webt/i/22.png";
+
+	// 西南角和东北角
+	var SW = new BMap.Point(70.411,11.849);
+	var NE = new BMap.Point(137.818,56.969);
+	groundOverlayOptions = {
+		opacity: 0.5,
+	}
+
+	// 初始化GroundOverlay
+	var groundOverlay = new BMap.GroundOverlay(new BMap.Bounds(SW, NE), groundOverlayOptions);
+	// 设置GroundOverlay的图片地址
+	groundOverlay.setImageURL(imgUrl);
+	
+	map.addOverlay(groundOverlay);
+
+	var pointSW = new BMap.Marker(SW);
+	var pointNE = new BMap.Marker(NE);
+	map.addOverlay(pointSW);
+	map.addOverlay(pointNE);
+
+	pointNE.enableDragging()
+	pointSW.enableDragging()
+
+
+
+	pointSW.addEventListener('dragend',function(x){
+		console.log(x.point)
+		map.removeOverlay(groundOverlay);
+		SW = x.point;
+		groundOverlay = new BMap.GroundOverlay(new BMap.Bounds(SW, NE), groundOverlayOptions);
+		// 设置GroundOverlay的图片地址
+		groundOverlay.setImageURL(imgUrl);
+		map.addOverlay(groundOverlay);
+	})
+	pointNE.addEventListener('dragend',function(x){
+		console.log(x.point)
+		map.removeOverlay(groundOverlay);
+		NE = x.point;
+		groundOverlay = new BMap.GroundOverlay(new BMap.Bounds(SW, NE), groundOverlayOptions);
+		// 设置GroundOverlay的图片地址
+		groundOverlay.setImageURL(imgUrl);
+		map.addOverlay(groundOverlay);
+	})
+	pointNE.addEventListener('click',function(x){
+		console.log("NE",x)
+	})
+	pointSW.addEventListener('click',function(x){
+		console.log("SW",x)
+	})
+
+</script>
