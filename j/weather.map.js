@@ -3,6 +3,7 @@ var M = {
 	Labels:{},
 	map:null,
 	data_url_head:'http://d1.weather.com.cn/webgis', //ajax数据头
+	// data_url_head:'http://ljy.weather.com.cn/webgis_baidu/d/webgis', //ajax数据头
 	maxZoom:14,
 	minZoom:4,
 	poiAreaType:'p',
@@ -89,138 +90,271 @@ var M = {
 
 	},
 	//播放效果定时器 容器
-	playerTimer:null, 
+	playerTimer:null,
 	//加载顶部时间轴  
-    _setTopTimer:function(arrTime){
-        var $cutLine = $('.cutLine').empty();
-        var $timeCon = $('.time .con')
-        var cutLineWidth = $timeCon.width();
-        var len = arrTime.length;
-        var width = cutLineWidth/len;
-        var strLi = "";
-        var hour = ''
-        for (var i = 0; i < len; i++) {
-        	var style = '';
-	        if (M.dataType=="radar") {//雷达
-        		if (i==(len-1)){
-	        		var hour = arrTime[i];
-	        	}else if(!parseInt(arrTime[i].split(':')[1])) {
-	        		if (arrTime[i].split(' ').length>1) {
-	        			var hour = arrTime[i].split(' ')[0];
-	        			arrTime[i] = arrTime[i].split(' ')[1];
-	        		}else{
-	        			var hour = arrTime[i].split(':')[0]+"时";
-	        		};
-	        	}else{
-	        		var hour = '';
-	        	};
-        	}else if (M.dataType.length<3) {//实况
-        		var hour = arrTime[i];
-        		if (hour.match(/\d+日/)) {
-        			var hour = hour.match(/\d+日/)[0];
-        			
-        			arrTime[i] = arrTime[i].split(' ')[1];
-        			var style = 'style="font-weight:bold"';
-        		};
-        		if (hour.split(':')[1]=="00") {
-        			var hour = hour.split(':')[0];
-        		}
-        	}else if (M.dataType.length==3) {//3小时预报
-        		var hour = arrTime[i];
-        		
-        		if (hour.split(':')[1]=="00") {
-        			var hour = hour.split(':')[0];
-        		}
-        	}else if (M.dataType.length==7) {//24小时预报
-        		var hour = arrTime[i];
-        	};
-            strLi += '<li class="on" '+style+' data-t="'+arrTime[i]+'" data-n="'+i+'" style="width:'+(width-2)+'px"><span>'+hour+'</span><i></i></li>'
-                  
-        };
-        $cutLine.append(strLi);
-        var $poiNote= $('.poi,.note').css('left',(len-0.5)*width+'px');
-        var $note = $('.note').text(arrTime[0]);
-        var $con_font = $(".con_font").text(arrTime[0]);
-        var $cutLine_li = $cutLine.find('li').live('mouseenter',function(){
-            var $this = $(this);
-            var index = $this.index();
-            $note.text($this.attr('data-t'))
-            $con_font.text($this.attr('data-t'))
-            pointer = index;
-            $cutLine.find('li').removeClass('on').filter('li:lt('+(index+1)+')').addClass('on')
-            $poiNote.css('left',(index+0.5)*width+'px')
-            
-            if(M.poiAreaType == "p"){
-            	if (M.isSkOrFo == "sk") {//实况
-            		if ($this.index()==($cutLine_li.length-1)) {
-            			M.hour = "";
-            		}else{
-            			M.hour = $this.attr("data-t").split(':')[0];
-            		};
-            	}else{//预报
-            		M.hIndex =  23-$this.attr('data-n');
-            	};
-            	M.topTimePointer_IsLoad = 1;
-            	M._setAjaxDataPoi();
-            }else{
-            	//显示某一层图片
-            	M._imgsShowNumber(index);
-            }
-            
-        })
-        $(".cutLine span,.cutLine i,.poi").live('mouseenter mouseleave',function(event){
-        // $('.radar .con').live('mouseenter mouseleave',function(event){
-            if (event.type == 'mouseenter') {
-                $('.playbtn').removeClass('stop');
-                if (M.dataType.length<7) {
-                	$note.show();
-                };
-                //停止播放器
-                clearInterval(M.playerTimer);
-            }else{
-                $note.hide();
-                //启动播放器
-                // T.playerTimer = setInterval(setPlay,500)
-            }
-        })     
-        //
-        var $openCloseBtn = $(".time .openclosebtn").live('click',function(){
-        	var $this = $(this);
-        	if ($this.hasClass('close')) {
-        		$('#console_time_radar').width(805);
-        		$('.time .con').show();
-        		$con_font.hide();
+	_setTopTimer:function(arrTime){
+		var $cutLine = $('.cutLine').empty();
+		var $timeCon = $('.time .con');
+		var cutLineWidth = $timeCon.width();
+		var len = arrTime.length;
+		var width = cutLineWidth/len;
+		var strLi = "";
+		var hour = '';
+		for (var i = 0; i < len; i++) {
+			var style = '';
+			if (M.dataType=="radar") {//雷达
+				if (i==(len-1)){
+					var hour = arrTime[i];
+				}else if(!parseInt(arrTime[i].split(':')[1])) {
+					if (arrTime[i].split(' ').length>1) {
+						var hour = arrTime[i].split(' ')[0];
+						arrTime[i] = arrTime[i].split(' ')[1];
+					}else{
+						var hour = arrTime[i].split(':')[0]+"时";
+					};
+				}else{
+					var hour = '';
+				};
+			}else if (M.dataType.length<3) {//实况
+				var hour = arrTime[i];
+				if (hour.match(/\d+日/)) {
+					var hour = hour.match(/\d+日/)[0];
 
-        		$this.removeClass('close');
-        	}else{
-        		$this.addClass('close');
-        		$('#console_time_radar').width(95);
-        		$('.time .con').hide();
-        		$con_font.show();
-        	};
-        })      
-        //定时播放
-        var pointer = 0;
-        function setPlay(){
-            pointer++;
-            if(pointer>=arrTime.length){
-                pointer = 0;
-            }
-            $cutLine_li.filter('[data-n="'+pointer+'"]').mouseenter();
-        }
-        $('.playbtn').unbind('click').bind ('click',function(){
-            var $this = $(this);
-            if ($this.hasClass('stop')) {
-                $this.removeClass('stop');
-                //停止播放器
-                clearInterval(M.playerTimer);
-            }else{
-                $this.addClass('stop');
-                M.playerTimer = setInterval(setPlay,200)
-            };
-        })
+					arrTime[i] = arrTime[i].split(' ')[1];
+					var style = 'style="font-weight:bold"';
+				};
+				if (hour.split(':')[1]=="00") {
+					var hour = hour.split(':')[0];
+				}
+			}else if (M.dataType.length==3) {//3小时预报
+				var hour = arrTime[i];
 
-    },
+				if (hour.split(':')[1]=="00") {
+					var hour = hour.split(':')[0];
+				}
+			}else if (M.dataType.length==7) {//24小时预报
+				var hour = arrTime[i];
+			};
+			strLi += '<li class="on" '+style+' data-t="'+arrTime[i]+'" data-n="'+i+'" style="width:'+(width-2)+'px"><span>'+hour+'</span><i></i></li>'
+
+		};
+		$cutLine.append(strLi);
+		var $poiNote= $('.poi,.note').css('left',(len-0.5)*width+'px');
+		var $note = $('.note').text(arrTime[0]);
+		var $con_font = $(".con_font").text(arrTime[0]);
+		var $cutLine_li = $cutLine.find('li').live('mouseenter',function(){
+			var $this = $(this);
+			var index = $this.index();
+			$note.text($this.attr('data-t'))
+			$con_font.text($this.attr('data-t'))
+			pointer = index;
+			$cutLine.find('li').removeClass('on').filter('li:lt('+(index+1)+')').addClass('on')
+			$poiNote.css('left',(index+0.5)*width+'px')
+
+			if(M.poiAreaType == "p"){
+				if (M.isSkOrFo == "sk") {//实况
+					if ($this.index()==($cutLine_li.length-1)) {
+						M.hour = "";
+					}else{
+						M.hour = $this.attr("data-t").split(':')[0];
+					};
+				}else{//预报
+					M.hIndex =  23-$this.attr('data-n');
+				};
+				M.topTimePointer_IsLoad = 1;
+				M._setAjaxDataPoi();
+			}else{
+				//显示某一层图片
+				M._imgsShowNumber(index);
+			}
+
+		})
+		$(".cutLine span,.cutLine i,.poi").live('mouseenter mouseleave',function(event){
+			// $('.radar .con').live('mouseenter mouseleave',function(event){
+			if (event.type == 'mouseenter') {
+				$('.playbtn').removeClass('stop');
+				if (M.dataType.length<7) {
+					$note.show();
+				};
+				//停止播放器
+				clearInterval(M.playerTimer);
+			}else{
+				$note.hide();
+				//启动播放器
+				// T.playerTimer = setInterval(setPlay,500)
+			}
+		})
+		//
+		var $openCloseBtn = $(".time .openclosebtn").live('click',function(){
+			var $this = $(this);
+			if ($this.hasClass('close')) {
+				$('#console_time_radar').width(805);
+				$('.time .con').show();
+				$con_font.hide();
+
+				$this.removeClass('close');
+			}else{
+				$this.addClass('close');
+				$('#console_time_radar').width(95);
+				$('.time .con').hide();
+				$con_font.show();
+			};
+		})
+		//定时播放
+		var pointer = 0;
+		function setPlay(){
+			pointer++;
+			if(pointer>=arrTime.length){
+				pointer = 0;
+			}
+			$cutLine_li.filter('[data-n="'+pointer+'"]').mouseenter();
+		}
+		$('.playbtn').unbind('click').bind ('click',function(){
+			var $this = $(this);
+			if ($this.hasClass('stop')) {
+				$this.removeClass('stop');
+				//停止播放器
+				clearInterval(M.playerTimer);
+			}else{
+				$this.addClass('stop');
+				M.playerTimer = setInterval(setPlay,200)
+			};
+		})
+
+	},
+	//加载顶部雷达时间轴
+	_setTopTimer_radar:function(arrTime){
+		var $F = $('#console_timer').addClass('radar')
+
+		var $cutLine = $('.cutLine').empty();
+		var $timeCon = $('.time .con');
+		var cutLineWidth = $timeCon.width();
+		var len = arrTime.length;
+		var width = cutLineWidth/len;
+		var strLi = "";
+		var hour = '';
+		for (var i = 0; i < len; i++) {
+			var style = '';
+			if (M.dataType=="radar") {//雷达
+				if (i==(len-1)){
+					var hour = arrTime[i];
+				}else if(!parseInt(arrTime[i].split(':')[1])) {
+					if (arrTime[i].split(' ').length>1) {
+						var hour = arrTime[i].split(' ')[0];
+						arrTime[i] = arrTime[i].split(' ')[1];
+					}else{
+						var hour = arrTime[i].split(':')[0]+"时";
+					};
+				}else{
+					var hour = '';
+				};
+			}else if (M.dataType.length<3) {//实况
+				var hour = arrTime[i];
+				if (hour.match(/\d+日/)) {
+					var hour = hour.match(/\d+日/)[0];
+
+					arrTime[i] = arrTime[i].split(' ')[1];
+					var style = 'style="font-weight:bold"';
+				};
+				if (hour.split(':')[1]=="00") {
+					var hour = hour.split(':')[0];
+				}
+			}else if (M.dataType.length==3) {//3小时预报
+				var hour = arrTime[i];
+
+				if (hour.split(':')[1]=="00") {
+					var hour = hour.split(':')[0];
+				}
+			}else if (M.dataType.length==7) {//24小时预报
+				var hour = arrTime[i];
+			};
+			strLi += '<li class="on" '+style+' data-t="'+arrTime[i]+'" data-n="'+i+'" style="width:'+(width-2)+'px"><span>'+hour+'</span><i></i></li>'
+
+		};
+		$cutLine.append(strLi);
+		var $poiNote= $('.poi,.note').css('left',(len-0.5)*width+'px');
+		var $note = $('.note').text(arrTime[0]);
+		var $con_font = $(".con_font").text(arrTime[0]);
+		var $cutLine_li = $cutLine.find('li').live('mouseenter',function(){
+			var $this = $(this);
+			var index = $this.index();
+			$note.text($this.attr('data-t'))
+			$con_font.text($this.attr('data-t'))
+			pointer = index;
+			$cutLine.find('li').removeClass('on').filter('li:lt('+(index+1)+')').addClass('on')
+			$poiNote.css('left',(index+0.5)*width+'px')
+
+			if(M.poiAreaType == "p"){
+				if (M.isSkOrFo == "sk") {//实况
+					if ($this.index()==($cutLine_li.length-1)) {
+						M.hour = "";
+					}else{
+						M.hour = $this.attr("data-t").split(':')[0];
+					};
+				}else{//预报
+					M.hIndex =  23-$this.attr('data-n');
+				};
+				M.topTimePointer_IsLoad = 1;
+				M._setAjaxDataPoi();
+			}else{
+				//显示某一层图片
+				M._imgsShowNumber(index);
+			}
+
+		})
+		$(".cutLine span,.cutLine i,.poi").live('mouseenter mouseleave',function(event){
+			// $('.radar .con').live('mouseenter mouseleave',function(event){
+			if (event.type == 'mouseenter') {
+				$('.playbtn').removeClass('stop');
+				if (M.dataType.length<7) {
+					$note.show();
+				};
+				//停止播放器
+				clearInterval(M.playerTimer);
+			}else{
+				$note.hide();
+				//启动播放器
+				// T.playerTimer = setInterval(setPlay,500)
+			}
+		})
+		//
+		var $openCloseBtn = $(".time .openclosebtn").live('click',function(){
+			var $this = $(this);
+			if ($this.hasClass('close')) {
+				$('#console_time_radar').width(805);
+				$('.time .con').show();
+				$con_font.hide();
+
+				$this.removeClass('close');
+			}else{
+				$this.addClass('close');
+				$('#console_time_radar').width(95);
+				$('.time .con').hide();
+				$con_font.show();
+			};
+		})
+		//定时播放
+		var pointer = 0;
+		function setPlay(){
+			pointer++;
+			if(pointer>=arrTime.length){
+				pointer = 0;
+			}
+			$cutLine_li.filter('[data-n="'+pointer+'"]').mouseenter();
+		}
+		$('.playbtn').unbind('click').bind ('click',function(){
+			var $this = $(this);
+			if ($this.hasClass('stop')) {
+				$this.removeClass('stop');
+				//停止播放器
+				clearInterval(M.playerTimer);
+			}else{
+				$this.addClass('stop');
+				M.playerTimer = setInterval(setPlay,200)
+			};
+		})
+
+	},
     //获取打印雷达图片数据
 	// tempImagesUrls:[],
 	_setLeidaImages:function(){

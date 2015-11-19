@@ -31,7 +31,9 @@ var dataTypeLis = $("#console_wea li[data-type]").click(function(){
 	M.dataType = dataType;
 
 	M.topTimePointer_IsLoad = 0;
+	//点面切换按钮
 	$('#poi_area_change').show();
+	//图例部分
 	$("#console_assist_pic").find('.tuli_' + M.dataType.substr(0,1)).show().siblings().hide();
 
 	// if (dataType.length==1) {//实况
