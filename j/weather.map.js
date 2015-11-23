@@ -25,6 +25,9 @@ var M = {
 			// M._setAjaxDataPoi();
 			//M._setLeidaImages();
 			$("#console_wea li[data-type=w]").click();
+
+			var myGeo = new BMap.Geocoder();
+			echo(myGeo)
 			
 		});
 
@@ -622,16 +625,14 @@ var M = {
 			dataType:'jsonp',
 			jsonpCallback:'webgisDot',
 			url:dataUrl,
-			success:function(jsonp){console.log(jsonp)
+			success:function(jsonp){//console.log(jsonp)
 				$('#loading_icon').hide();
 				//数据请求成功
 				M.PointerDataIsLoad = 1;
-				//获取的jsonp数据做缓存
+				//获取的jsonp数据init做缓存
 				M.tempJsonpPoiData = jsonp;
-				M._setPoi();
-				if (M.dataType.substr(0,1)=='w') {
-					M._setIcon();
-				}
+				// M._setPoi();
+				
 				// M._setIcon(jsonp);
 				//缩放动作监听
 		    	M.map.addEventListener("zoomend",M._ListenFunSetPoi)
@@ -693,9 +694,11 @@ var M = {
 
 		//判断站点是在地图可视区域内 才加载 
 		var bounds = M.map.getBounds();
-		var NorthEast = bounds.getNorthEast();
-		var SouthWest = bounds.getSouthWest();
+		var NorthEast = bounds.getNorthEast()||{};
+		var SouthWest = bounds.getSouthWest()||{};
 		var zoom = M.map.getZoom();
+		// console.log(NorthEast,SouthWest.lat)
+		echo(bounds)
 		//地图7级以下显示省 10级以下显示到市 14级以下显示到区
 		var showPoiZoom = zoom<7 && 1 || zoom<10 && 2 || 3;
 		//双重条件（站点级别、在可视区内）满足后 执行打点
@@ -728,7 +731,7 @@ var M = {
 		var bounds = M.map.getBounds();
 		var NorthEast = bounds.getNorthEast();
 		var SouthWest = bounds.getSouthWest();
-		
+		// console.log(bounds)
 		var zoom = M.map.getZoom();
 		//地图7级以下显示省 10级以下显示到市 14级以下显示到区
 		var showPoiZoom = zoom<7 && 1 || zoom<10 && 2 || 3;
@@ -758,7 +761,7 @@ M.tempAjaxRain24Url = "http://ljy.weather.com.cn/webt/d/24rain/rr072908_024(2).j
 			dataType: "jsonp",
 			jsonpCallback: "getData",
 			url:"http://d1.weather.com.cn/webgis_test/fo/json/r24hJson_list.json",
-			success:function(jsonp){console.log(jsonp)
+			success:function(jsonp){//console.log(jsonp)
 				M.tempAjaxRain24Url = "http://d1.weather.com.cn/webgis_test/24r/data_jsonp/"+jsonp.datas[2].picPath
 				
 				M._setRain24H();
@@ -775,7 +778,7 @@ M.tempAjaxRain24Url = "http://ljy.weather.com.cn/webt/d/24rain/rr072908_024(2).j
 			dataType: "jsonp",
 			jsonpCallback: "getData",
 			url:M.tempAjaxRain24Url,
-			success:function(json){console.log(json)
+			success:function(json){//console.log(json)
 				$('#loading_icon').hide();
 				//先清除图层
 				M._clearOverlays();
@@ -783,7 +786,7 @@ M.tempAjaxRain24Url = "http://ljy.weather.com.cn/webt/d/24rain/rr072908_024(2).j
 				var arrAll = json.features;
 				var color = {"0":"#A4F391","10":"#3CA405","25":"#5BBBF7","50":"#0203F8","100":"#FA02F9","250":"#720208"}
 				for (var i = 0; i <= arrAll.length - 1; i++) {
-					var arr = arrAll[i].geometry.rings[0];console.log(arr)
+					var arr = arrAll[i].geometry.rings[0];//console.log(arr)
 					var polygonArr = [];
 					for (var j = arr.length - 1; j >= 0; j--) {
 						polygonArr.push(new BMap.Point(arr[j][0],arr[j][1]))
@@ -828,3 +831,6 @@ M.tempAjaxRain24Url = "http://ljy.weather.com.cn/webt/d/24rain/rr072908_024(2).j
 }
 
 M._init(); 
+function echo(e){
+	console.log(e)
+}
