@@ -1,6 +1,6 @@
 body { background-attachment: fixed; background-color: #ffffff; background-position: center top; background-repeat: no-repeat; border: 0px none; font: 14px/1.6 "Microsoft Yahei", "Tahoma", "SimSun"; margin: 0px; padding: 0px; }
-body { background-image: url("../i/111.jpg"); background-position: 320px -165px; }
-* { border: 0px none; margin: 0px; padding: 0px; }
+/*body { background-image: url("../i/111.jpg"); background-position: 320px -165px; }
+*/* { border: 0px none; margin: 0px; padding: 0px; }
 ul { list-style: outside none none; }
 a { color: #252525; text-decoration: none; }
 a:hover { color: #ee842f; }
@@ -62,19 +62,29 @@ h1, h2, h3, h4, h5, h6 { font-weight: normal; }
 .map_con .time .openclosebtn { background-position: -32px -106px; border-radius: 0px 4px 4px 0px; cursor: pointer; height: 30px; position: absolute; right: 0px; top: 0px; width: 8px; z-index: 2; }
 .map_con .time .openclosebtn.close{ background-position:-32px 0}
 .map_con .time .bg { background: #000000 none repeat scroll 0% 0%; border-radius: 4px; height: 100%; left: 3%; opacity: 0.5; position: absolute; top: 0px; width: 97%; z-index: 1; }
-.map_con .radar .con{ height: 30px;padding-top:0; left: 47px; position: absolute; width: 735px; }
-.map_con .radar .con .cutLine { border-radius: 3px; height: 30px; left: 0px; position: absolute; top: 0px; width: 745px; z-index: 4; }
-.map_con .radar .con .cutLine li { cursor:pointer; float: left; height: 30px; margin-right: 2px;  }
-.map_con .radar .con .cutLine li span{ white-space:nowrap; height:20px; display:block; text-align:center; color:#fff; font-size:11px; line-height:20px;}
-.map_con .radar .con .cutLine li i{ height:3px; background:#fff; display:block; width:100%; margin-top:1px;}
-.map_con .radar .con .cutLine li.on i{ background:#ffce39}
+.map_con .time .con{ height: 30px;padding-top:0; left: 47px; position: absolute; width: 735px; }
+.map_con .time .con .cutLine { border-radius: 3px; height: 30px; left: 0px; position: absolute; top: 0px; width: 745px; z-index: 4; }
+.map_con .time .con .cutLine li { cursor:pointer; float: left; height: 30px; margin-right: 2px;  }
+.map_con .time .con .cutLine li span{ white-space:nowrap; height:20px; display:block; text-align:center; color:#fff; font-size:11px; line-height:20px;}
+.map_con .time .con .cutLine li i{ height:3px; background:#fff; display:block; width:100%; margin-top:1px;}
+.map_con .time .con .cutLine li.on i{ background:#ffce39}
 
-.map_con .radar .note { display:none; background-position: 0px -413px; color: #66a1f4; cursor: pointer; font-size: 13px; height: 27px; left: 0px; line-height: 32px; position: absolute; text-align: center; top: 30px; width: 42px; z-index: 1; margin-left:-21px; }
-.map_con .radar .poi { background-position: -2px -441px; margin-left:-7px; cursor: pointer; height: 20px; left: 0%; position: absolute; top: 12px; width: 13px; z-index: 4; }
+.map_con .time .note { display:none; background-position: 0px -413px; color: #66a1f4; cursor: pointer; font-size: 13px; height: 27px; left: 0px; line-height: 32px; position: absolute; text-align: center; top: 30px; width: 42px; z-index: 1; margin-left:-21px; }
+.map_con .time .poi { background-position: -2px -441px; margin-left:-7px; cursor: pointer; height: 20px; left: 0%; position: absolute; top: 12px; width: 13px; z-index: 4; }
+.map_con .time .con_font{ display:none; position:absolute; left:39px; top:0; height:30px; line-height:30px; color:#fff; z-index:2;}
 
-
-.map_con .radar .con_font{ display:none; position:absolute; left:39px; top:0; height:30px; line-height:30px; color:#fff; z-index:2;}
-.map_con { }
+/**/
+.map_con .area .con{ height: 30px;padding-top:0; left: 47px; position: absolute; width: 735px; }
+.map_con .area .con .cutLine { border-radius: 3px; height: 30px; left: 0px; position: absolute; top: 0px; width: 745px; z-index: 4; }
+.map_con .area .con .cutLine li { cursor:pointer; float: left; height: 30px; margin-right: 2px;  }
+.map_con .area .con .cutLine li span{ white-space:nowrap; height:20px; display:block; text-align:center; color:#fff; font-size:11px; line-height:20px;}
+.map_con .area .con .cutLine li i{ height:3px; background:#fff; display:block; width:100%; margin-top:1px;}
+.map_con .area .con .cutLine li.on i{ background:#ffce39}
+.map_con .area .note { display:none; background-position: 0px -413px; color: #66a1f4; cursor: pointer; font-size: 13px; height: 27px; left: 0px; line-height: 32px; position: absolute; text-align: center; top: 30px; width: 42px; z-index: 1; margin-left:-21px; }
+.map_con .area .poi { background-position: -2px -441px; margin-left:-7px; cursor: pointer; height: 20px; left: 0%; position: absolute; top: 12px; width: 13px; z-index: 4; }
+.map_con .area .con_font{ display:none; position:absolute; left:39px; top:0; height:30px; line-height:30px; color:#fff; z-index:2;}
+/**/
+.map_con .pointer{ left: 0; }
 .map_con { }
 .map_con { }
 .map_con .assist { }

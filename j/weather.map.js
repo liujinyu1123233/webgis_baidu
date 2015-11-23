@@ -2,8 +2,8 @@ var M = {
 	mapContainerId:'map',
 	Labels:{},
 	map:null,
-	data_url_head:'http://d1.weather.com.cn/webgis', //ajax数据头
-	// data_url_head:'http://ljy.weather.com.cn/webgis_baidu/d/webgis', //ajax数据头
+	// data_url_head:'http://d1.weather.com.cn/webgis', //ajax数据头
+	data_url_head:'http://ljy.weather.com.cn/webgis_baidu/d/webgis', //ajax数据头
 	maxZoom:14,
 	minZoom:4,
 	poiAreaType:'p',
@@ -24,7 +24,7 @@ var M = {
 			// M._setAjaxDataImages();
 			// M._setAjaxDataPoi();
 			//M._setLeidaImages();
-			$("#console_wea li[data-type=radar]").click();
+			$("#console_wea li[data-type=w]").click();
 			
 		});
 
@@ -86,11 +86,9 @@ var M = {
 		M.distance.close();
 	},
 	
-	_leidaTimer:function(){
-
-	},
 	//播放效果定时器 容器
 	playerTimer:null,
+	
 	//加载顶部时间轴  
 	_setTopTimer:function(arrTime){
 		var $cutLine = $('.cutLine').empty();
@@ -136,7 +134,6 @@ var M = {
 				var hour = arrTime[i];
 			};
 			strLi += '<li class="on" '+style+' data-t="'+arrTime[i]+'" data-n="'+i+'" style="width:'+(width-2)+'px"><span>'+hour+'</span><i></i></li>'
-
 		};
 		$cutLine.append(strLi);
 		var $poiNote= $('.poi,.note').css('left',(len-0.5)*width+'px');
@@ -150,7 +147,6 @@ var M = {
 			pointer = index;
 			$cutLine.find('li').removeClass('on').filter('li:lt('+(index+1)+')').addClass('on')
 			$poiNote.css('left',(index+0.5)*width+'px')
-
 			if(M.poiAreaType == "p"){
 				if (M.isSkOrFo == "sk") {//实况
 					if ($this.index()==($cutLine_li.length-1)) {
@@ -167,7 +163,6 @@ var M = {
 				//显示某一层图片
 				M._imgsShowNumber(index);
 			}
-
 		})
 		$(".cutLine span,.cutLine i,.poi").live('mouseenter mouseleave',function(event){
 			// $('.radar .con').live('mouseenter mouseleave',function(event){
@@ -220,14 +215,124 @@ var M = {
 				M.playerTimer = setInterval(setPlay,200)
 			};
 		})
-
 	},
-	//加载顶部雷达时间轴
-	_setTopTimer_radar:function(arrTime){
-		var $F = $('#console_timer').addClass('radar')
+	//加载顶部 站点（实况&预报） 时间轴
+	_setTopTimer_pointer:function(arrTime){
+		var initDom   = '<div class="time pointer">'+
+							
+							'<div class="con">'+
+								'<ul class="cutLine">'+
+								'</ul>'+
+								'<div class="poi"></div>'+
+								'<div class="note"></div>'	+				
+							'</div>'+
+							'<div class="con_font">'+
+							'</div>'+
+							'<div class="bg"></div>'+
+						'</div>';
+		var $console_timer = $('#console_timer').html(initDom);
+		var $F  = $console_timer.find('.pointer');
+		var $cutLine = $F.find('.cutLine');
+		var $timeCon = $F.find('.con');
+		var cutLineWidth = $timeCon.width();
+		var len = arrTime.length;
+		var width = cutLineWidth/len;
+		var strLi = "";
+		var hour = '';
+		for (var i = 0; i < len; i++) {
+			var style = '';
+			if (M.dataType.length<3) {//实况
+				var hour = arrTime[i];
+				if (hour.match(/\d+日/)) {
+					var hour = hour.match(/\d+日/)[0];
 
-		var $cutLine = $('.cutLine').empty();
-		var $timeCon = $('.time .con');
+					arrTime[i] = arrTime[i].split(' ')[1];
+					var style = 'style="font-weight:bold"';
+				};
+				if (hour.split(':')[1]=="00") {
+					var hour = hour.split(':')[0];
+				}
+			}else if (M.dataType.length==3) {//3小时预报
+				var hour = arrTime[i];
+
+				if (hour.split(':')[1]=="00") {
+					var hour = hour.split(':')[0];
+				}
+			}else if (M.dataType.length==7) {//24小时预报
+				var hour = arrTime[i];
+			};
+			strLi += '<li class="on" '+style+' data-t="'+arrTime[i]+'" data-n="'+i+'" style="width:'+(width-2)+'px"><span>'+hour+'</span><i></i></li>'
+		};
+		$cutLine.append(strLi);
+		
+		var $note = $F.find('.note').text(arrTime[0]).css('left',(len-0.5)*width+'px');
+		var $poi= $F.find('.poi').css('left',(len-0.5)*width+'px');
+
+		var $con_font = $F.find(".con_font").text(arrTime[0]);
+		var $cutLine_li = $cutLine.find('li').live('mouseenter',function(){
+			var $this = $(this);
+			var index = $this.index();
+			$note.text($this.attr('data-t'))
+			$con_font.text($this.attr('data-t'))
+			pointer = index;
+			$cutLine.find('li').removeClass('on').filter('li:lt('+(index+1)+')').addClass('on')
+			$note.css('left',(index+0.5)*width+'px')
+			$poi.css('left',(index+0.5)*width+'px')
+			
+			if (M.isSkOrFo == "sk") {//实况
+				if ($this.index()==($cutLine_li.length-1)) {
+					M.hour = "";
+				}else{
+					M.hour = $this.attr("data-t").split(':')[0];
+				};
+			}else{//预报
+				if (M.dataType == 't24hmax' || M.dataType == 't24hmin') {
+					//24小时高低温预报
+					M.hIndex = $this.attr('data-n');
+				}else{
+					//3小时预报
+					M.hIndex =  23-$this.attr('data-n');
+				};
+			};
+			M.topTimePointer_IsLoad = 1;
+			M._setAjaxDataPoi();
+			
+		})
+		$F.find(".cutLine span,.cutLine i,.poi").live('mouseenter mouseleave',function(event){
+			// $('.radar .con').live('mouseenter mouseleave',function(event){
+			if (event.type == 'mouseenter') {
+				$F.find('.playbtn').removeClass('stop');
+				if (M.dataType.length<7) {
+					$note.show();
+				};
+				
+			}else{
+				$note.hide();
+			
+			}
+		})
+		
+		
+	},
+	//加载顶部 图片（实况&预报&雷达） 时间轴
+	_setTopTimer_images:function(arrTime){
+		var initDom   = '<div class="time area">'+
+							'<div class="playbtn"></div>'+
+							'<div class="openclosebtn"></div>'+
+							'<div class="con">'+
+								'<ul class="cutLine">'+
+								'</ul>'+
+								'<div class="poi"></div>'+
+								'<div class="note"></div>'	+				
+							'</div>'+
+							'<div class="con_font">'+
+							'</div>'+
+							'<div class="bg"></div>'+
+						'</div>';
+		var $console_timer = $('#console_timer').html(initDom);
+		var $F = $console_timer.find('.area');
+		var $cutLine = $F.find('.cutLine');
+		var $timeCon = $F.find('.con');
 		var cutLineWidth = $timeCon.width();
 		var len = arrTime.length;
 		var width = cutLineWidth/len;
@@ -236,6 +341,7 @@ var M = {
 		for (var i = 0; i < len; i++) {
 			var style = '';
 			if (M.dataType=="radar") {//雷达
+
 				if (i==(len-1)){
 					var hour = arrTime[i];
 				}else if(!parseInt(arrTime[i].split(':')[1])) {
@@ -268,13 +374,15 @@ var M = {
 			}else if (M.dataType.length==7) {//24小时预报
 				var hour = arrTime[i];
 			};
-			strLi += '<li class="on" '+style+' data-t="'+arrTime[i]+'" data-n="'+i+'" style="width:'+(width-2)+'px"><span>'+hour+'</span><i></i></li>'
 
+			strLi += '<li class="on" '+style+' data-t="'+arrTime[i]+'" data-n="'+i+'" style="width:'+(width-2)+'px"><span>'+hour+'</span><i></i></li>'
 		};
 		$cutLine.append(strLi);
-		var $poiNote= $('.poi,.note').css('left',(len-0.5)*width+'px');
-		var $note = $('.note').text(arrTime[0]);
-		var $con_font = $(".con_font").text(arrTime[0]);
+		
+		var $note = $F.find('.note').text(arrTime[0]).css('left',(len-0.5)*width+'px');
+		var $poi= $F.find('.poi').css('left',(len-0.5)*width+'px');
+
+		var $con_font = $F.find(".con_font").text(arrTime[0]);
 		var $cutLine_li = $cutLine.find('li').live('mouseenter',function(){
 			var $this = $(this);
 			var index = $this.index();
@@ -282,30 +390,15 @@ var M = {
 			$con_font.text($this.attr('data-t'))
 			pointer = index;
 			$cutLine.find('li').removeClass('on').filter('li:lt('+(index+1)+')').addClass('on')
-			$poiNote.css('left',(index+0.5)*width+'px')
-
-			if(M.poiAreaType == "p"){
-				if (M.isSkOrFo == "sk") {//实况
-					if ($this.index()==($cutLine_li.length-1)) {
-						M.hour = "";
-					}else{
-						M.hour = $this.attr("data-t").split(':')[0];
-					};
-				}else{//预报
-					M.hIndex =  23-$this.attr('data-n');
-				};
-				M.topTimePointer_IsLoad = 1;
-				M._setAjaxDataPoi();
-			}else{
-				//显示某一层图片
-				M._imgsShowNumber(index);
-			}
-
+			$note.css('left',(index+0.5)*width+'px')
+			$poi.css('left',(index+0.5)*width+'px')
+			//显示某一层图片
+			M._imgsShowNumber(index);
 		})
-		$(".cutLine span,.cutLine i,.poi").live('mouseenter mouseleave',function(event){
+		$F.find(".cutLine span,.cutLine i,.poi").live('mouseenter mouseleave',function(event){
 			// $('.radar .con').live('mouseenter mouseleave',function(event){
 			if (event.type == 'mouseenter') {
-				$('.playbtn').removeClass('stop');
+				$F.find('.playbtn').removeClass('stop');
 				if (M.dataType.length<7) {
 					$note.show();
 				};
@@ -318,18 +411,17 @@ var M = {
 			}
 		})
 		//
-		var $openCloseBtn = $(".time .openclosebtn").live('click',function(){
+		var $openCloseBtn = $F.find(".openclosebtn").unbind('click').bind('click',function(){
 			var $this = $(this);
 			if ($this.hasClass('close')) {
-				$('#console_time_radar').width(805);
-				$('.time .con').show();
+				$F.width(805);
+				$F.find('.con').show();
 				$con_font.hide();
-
 				$this.removeClass('close');
 			}else{
 				$this.addClass('close');
-				$('#console_time_radar').width(95);
-				$('.time .con').hide();
+				$F.width(95);
+				$F.find('.con').hide();
 				$con_font.show();
 			};
 		})
@@ -342,7 +434,7 @@ var M = {
 			}
 			$cutLine_li.filter('[data-n="'+pointer+'"]').mouseenter();
 		}
-		$('.playbtn').unbind('click').bind ('click',function(){
+		$F.find('.playbtn').unbind('click').bind('click',function(){
 			var $this = $(this);
 			if ($this.hasClass('stop')) {
 				$this.removeClass('stop');
@@ -353,12 +445,11 @@ var M = {
 				M.playerTimer = setInterval(setPlay,200)
 			};
 		})
-
 	},
     //获取打印雷达图片数据
 	// tempImagesUrls:[],
 	_setLeidaImages:function(){
-		$('#console_time_radar .playbtn').show();
+
 		var ajaxDataUrl = M.data_url_head + '/radar/radar_list.json';
 		var picFile = M.data_url_head + '/radar/QR/';
 		$('#poi_area_change').hide();
@@ -390,17 +481,18 @@ var M = {
 			        	pictimes.push(day+arrTime[i].m[j]);
 					}
 				}
+				
 				//向地图中打印所有图片
 				M._setImage(picpaths);
 				//打印时间轴
-				M._setTopTimer(pictimes);
-						
+				// M._setTopTimer(pictimes);
+				M._setTopTimer_images(pictimes);	
 			}
 		});
 	},
 	_setAjaxDataImages:function(){
-		$('#console_time_radar .playbtn').show();
-		var ajaxDataUrl = M.data_url_head+'/'+M.isSkOrFo+'/json/'+M.dataType+'_list.json';
+		
+		var ajaxDataUrl = M.data_url_head+'/'+M.isSkOrFo+'/json_list/'+M.dataType+'_list.json';
 		$.ajax({
 			type:'get',
 			dataType:'jsonp',
@@ -416,7 +508,7 @@ var M = {
 				//拼合图片地址 建立图片地址数组 && 建立时间轴数组
 				var arr = jsonp.datas;
 				for (var i = arr.length - 1; i >= 0; i--) {
-					var imgUrl = 'http://d1.weather.com.cn/webgis/'+M.isSkOrFo+'/images/'+M.dataType+'/'+arr[i].picPath;
+					var imgUrl = M.data_url_head+'/'+M.isSkOrFo+'/images/'+M.dataType+'/'+arr[i].picPath;
 					tempImagesUrls = tempImagesUrls.concat(imgUrl);
 					if (M.dataType.length==7) {//24小时预报
 						var data = arr[i].dt+"";
@@ -437,13 +529,13 @@ var M = {
 				//向地图中打印所有图片
 				M._setImage(tempImagesUrls);
 				//打印时间轴
-				M._setTopTimer(pictimes)
+				M._setTopTimer_images(pictimes)
 			}
 		})
 
 	},
 	imagesLays:[], //图层缓存
-	//获取一组图片  建一组图片层 
+	//工厂函数-打印图片 获取一组图片 建一组图片层 
 	_setImage:function(imgs){
 		//清除所有图片层
 		M._clearOverlays();
@@ -456,7 +548,6 @@ var M = {
 	    	//赋值监听状态 表示已经解除地图上打点的监听动作
 	    	M.isAddListener = false;
 		};
-			
 
 		// 西南角和东北角
 		var SW = new BMap.Point(70.411,11.849);
@@ -491,11 +582,7 @@ var M = {
 		};
 		
 	},
-	_removeImages:function(){
-		for (var i = M.imagesLays.length - 1; i >= 0; i--) {
-			M.map.removeOverlay(M.imagesLays[i]);
-		};
-	},
+	
 	tempJsonpPoiData:null,//jsonp点数据缓存
 	hour:"",
 	hIndex:0,//逐三小时 24组点数据 指针
@@ -508,7 +595,7 @@ var M = {
 		// 	M.currentAjax.abort();
 		// }
 
-		$('#console_time_radar .playbtn').hide();
+		
 		// var ajaxUrl = 'd/'+M.isSkOrFo+'/p_h.json';
 		var urlChangePack = "" ;
 		if(M.isSkOrFo == 'sk'){//加载实况点数据
@@ -541,8 +628,10 @@ var M = {
 				M.PointerDataIsLoad = 1;
 				//获取的jsonp数据做缓存
 				M.tempJsonpPoiData = jsonp;
-
 				M._setPoi();
+				if (M.dataType.substr(0,1)=='w') {
+					M._setIcon();
+				}
 				// M._setIcon(jsonp);
 				//缩放动作监听
 		    	M.map.addEventListener("zoomend",M._ListenFunSetPoi)
@@ -581,7 +670,9 @@ var M = {
 		    		};
 			    		
 				};
-		    	M._setTopTimer(pictimes);
+		    	// M._setTopTimer(pictimes);
+		    	M._setTopTimer_pointer(pictimes);
+		    	
 			}
 		})
 	},
@@ -591,6 +682,10 @@ var M = {
 	_ListenFunSetPoi:function(){
 		M.isAddListener = true;
 		M._setPoi();
+		if (M.dataType.substr(0,1)=='w') {
+			M._setIcon();
+		}
+		
 	},
 	_setPoi:function(){
 		//清除图层
@@ -598,22 +693,26 @@ var M = {
 
 		//判断站点是在地图可视区域内 才加载 
 		var bounds = M.map.getBounds();
+		var NorthEast = bounds.getNorthEast();
+		var SouthWest = bounds.getSouthWest();
 		var zoom = M.map.getZoom();
 		//地图7级以下显示省 10级以下显示到市 14级以下显示到区
 		var showPoiZoom = zoom<7 && 1 || zoom<10 && 2 || 3;
 		//双重条件（站点级别、在可视区内）满足后 执行打点
 		var arr = M.tempJsonpPoiData.data;
-		 
 		
 		for (var i = arr.length - 1; i >= 0; i--) {
 			var d = arr[i];
-			if(d.g <= showPoiZoom && bounds.we<d.y && d.y<bounds.re && bounds.xe<d.x && d.x<bounds.se){
+			if(d.g <= showPoiZoom && SouthWest.lat<d.y && d.y<NorthEast.lat && SouthWest.lng<d.x && d.x<NorthEast.lng){
+				if (!d.v || d.v =='0') {
+					continue;
+				};
 				var label = new BMap.Label(d.v,{position:new BMap.Point(d.x,$.trim(d.y))});
 				//级别不用文字背景色不同 设置文字背景色
 				var font = M._setFontCol(d.v);
 				label.setStyle({
 					color : "#"+font.fontCol,
-					background:"#"+font.fontBgCol,
+					background:font.fontBgCol&&"#"+font.fontBgCol||"none",
 					border:'none',
 					cursor:"pointer",
 					padding:"4px",
@@ -623,21 +722,27 @@ var M = {
 			}
 		};
 	},
+	//单站数据时风图标
 	_setIcon:function(jsonp){
 		//判断站点是在地图可视区域内 才加载 
 		var bounds = M.map.getBounds();
+		var NorthEast = bounds.getNorthEast();
+		var SouthWest = bounds.getSouthWest();
+		
 		var zoom = M.map.getZoom();
 		//地图7级以下显示省 10级以下显示到市 14级以下显示到区
 		var showPoiZoom = zoom<7 && 1 || zoom<10 && 2 || 3;
 		//双重条件（站点级别、在可视区内）满足后 执行打点
-		var arr = jsonp.data;
+		var arr = M.tempJsonpPoiData.data;
 
 		for (var i = arr.length - 1; i >= 0; i--) {
 			var d = arr[i];
-
-			if(d.g <= showPoiZoom && bounds.we<d.x && d.x<bounds.re && bounds.ve<d.y && d.y<bounds.qe){
-				var icon = new BMap.Icon("i/wind_1.png", new BMap.Size(50,50),{
-   					anchor: new BMap.Size(20, 15)});
+			if(d.g <= showPoiZoom && SouthWest.lat<d.y && d.y<NorthEast.lat && SouthWest.lng<d.x && d.x<NorthEast.lng){
+				if(!d.v||d.v=="0"){
+					continue;
+				}
+				var icon = new BMap.Icon("i/wind/lv"+d.v+"_"+d.v1+".png", new BMap.Size(46,46),{
+   					anchor: new BMap.Size(15, 11)});
 
 				var marker = new BMap.Marker(new BMap.Point(d.x,$.trim(d.y)),{icon:icon})
 				M.map.addOverlay(marker);
@@ -703,8 +808,10 @@ M.tempAjaxRain24Url = "http://ljy.weather.com.cn/webt/d/24rain/rr072908_024(2).j
 			var fontBgCol = val < 1 && 'b4d6a4' || val < 2 && '79cf62' || val < 4 && '35bb34' || val < 6 && '5bb9f9' || val < 8 && '0000fa' || val < 10 && '007249' || val < 20 && 'ff00f2' || val < 50 && 'eb4900' || '740402';
 			var fontCol = (val >= 6 && val < 10) && 'fff' || val >= 50 && 'fff' || '252525';
 		} else if (M.dataType.substr(0,1) == 'w') { //风
-			var fontBgCol = val <= 3 && 'e6a96e' || val < 5 && 'f7dc3b' || val < 7 && 'baf894' || val < 9 && '89dfef' || val < 12 && '3e87eb' || val >= 12 && '0541ec' || 'fff';
-			var fontCol = val >= 9 && 'fff' || '252525';
+			// var fontBgCol = val <= 3 && 'e6a96e' || val < 5 && 'f7dc3b' || val < 7 && 'baf894' || val < 9 && '89dfef' || val < 12 && '3e87eb' || val >= 12 && '0541ec' || 'fff';
+			// var fontCol = val >= 9 && 'fff' || '252525';
+			var fontBgCol =  null;
+			var fontCol = "fff";
 		
 		} else if (M.dataType.substr(0,1) == 'h') { //相对湿度
 			var fontBgCol = val < 10 && '973100' || val < 20 && 'ea7116' || val < 30 && 'ff992a' || val < 40 && 'fec34f' || val < 50 && 'fee48f' || val < 60 && 'bddef0' || val < 70 && '7fbad9' || val < 80 && '4394c3' || val < 90 && '1f63ac' || val <= 100 && '053160';

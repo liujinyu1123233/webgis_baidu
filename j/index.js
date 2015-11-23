@@ -31,9 +31,7 @@ var dataTypeLis = $("#console_wea li[data-type]").click(function(){
 	M.dataType = dataType;
 
 	M.topTimePointer_IsLoad = 0;
-	//点面切换按钮
 	$('#poi_area_change').show();
-	//图例部分
 	$("#console_assist_pic").find('.tuli_' + M.dataType.substr(0,1)).show().siblings().hide();
 
 	// if (dataType.length==1) {//实况
@@ -49,6 +47,7 @@ var dataTypeLis = $("#console_wea li[data-type]").click(function(){
 	// 	M._setAjaxDataImages();
 	// };;
 	if (dataType == 'radar') {//雷达
+
 		M._setLeidaImages();
 	}else if (dataType.length==1) {//实况
 		M.isSkOrFo = "sk";
@@ -76,20 +75,21 @@ $('#poi_area_change').click(function(){
 	$('#loading_icon').show();
 	var $this = $(this);
 	M.topTimePointer_IsLoad = 0;
-	if($this.hasClass('on')){
+
+	if(M.poiAreaType == 'a'){
 		//站点
-		if (M.poiAreaType != 'p') {
+		// if (M.poiAreaType != 'p') {
 			M.poiAreaType = 'p';
 			$this.removeClass('on');
-			M._setAjaxDataPoi();
-			$('#console_time_radar .playbtn').hide();
-		};
-		
+			M._setAjaxDataPoi();			
+		// };		
 	}else{
 		//区域
-		if (M.poiAreaType != 'a') {
+		// if (M.poiAreaType != 'a') {
 			M.poiAreaType = 'a';
 			$this.addClass('on');
+			
+	    	
 			if (M.dataType == 'radar') {//雷达图
 				M._setLeidaImages();
 			}else if (M.dataType=="r24h") {//24小时降水预报图（micaps绘图）
@@ -97,8 +97,8 @@ $('#poi_area_change').click(function(){
 			}else{//3小时、24小时实况，预报图
 				M._setAjaxDataImages();
 			};
-			$('#console_time_radar .playbtn').show();
-		};
+			
+		// };
 		
 	}
 })
